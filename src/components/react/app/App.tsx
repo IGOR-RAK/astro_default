@@ -9,7 +9,7 @@ function App() {
   }, []);
   return (
     <main>
-      <h1 className="title">Заголовок с React</h1>
+      <h1 className="title">React</h1>
       <h2 className="title">{store.title&&store.title}</h2>
     </main>
   );

@@ -1,0 +1,12 @@
+$primary-color: #3498db;
+$title-color: #e74c3c;
+
+.title {
+  color: $title-color;
+  font-size: 2rem;
+  text-align: center;
+}
+body {
+  font-family: Arial, sans-serif;
+  background-color: $primary-color;
+}
