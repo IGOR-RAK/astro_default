@@ -1,5 +1,4 @@
-import React, { createContext } from "react";
-import Store from "./store/store";
+import React from "react";
 import {store, Context} from "./store/context"
 import App from "./App";
 
