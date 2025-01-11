@@ -19,9 +19,14 @@
    Убираем внешние отступы body и двум другим тегам,
    у которых есть атрибут class
   */
- body,
- :where(blockquote, figure):where([class]) {
-   margin: 0;
+
+//  body,
+//  :where(blockquote, figure):where([class]) {
+//   margin: 1px 0 1px 0;
+//  }
+
+ body {
+  margin: 0;
  }
  
  /**
