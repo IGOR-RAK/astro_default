@@ -1,0 +1,45 @@
+@use "../../helpers/" as *;
+
+.progress-container {
+  padding: 0;
+  width: rem(80);
+  height: rem(6);
+  background:transparent; 
+  border-radius: rem(2);
+  overflow: hidden;  
+}
+
+.progress-line.is-active {
+  height: 100%;
+  width: 0%;
+  background: rgb(203, 20, 63);
+  background: rgb(157, 6, 92);
+  background: linear-gradient(
+    238deg,
+    rgba(220, 10, 10, 0.7) 16%,
+    rgba(220, 21, 21, 0.7) 91%
+  );
+  // animation: progress 3s linear infinite;
+  animation: progress;
+  animation-duration: 3s;
+  animation-fill-mode: backwards;
+  animation-timing-function: linear;
+}
+
+.progress-line.is-current{
+  height: 100%;
+  width: 100%;
+  background: rgb(203, 20, 63);
+  background: rgb(157, 6, 92);
+  background: linear-gradient(
+    238deg,
+    rgba(220, 10, 10, 0.7) 16%,
+    rgba(220, 21, 21, 0.7) 91%
+  );
+}
+
+@keyframes progress {
+    to {
+      width: 100%;
+    }
+  }

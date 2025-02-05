@@ -1,0 +1,75 @@
+@use "../helpers/" as *;
+.hero {  
+  background-size: cover; /* Изображение растягивается, чтобы покрыть всю секцию */
+  background-position: center; /* Центрирование изображения */
+  background-repeat: no-repeat; /* Запрещает повторение изображения */
+
+  height: 80vh; /* Высота секции - 100% высоты экрана */
+  color: var(--color-dark); /* Цвет текста, чтобы он был читаемым на фоне */
+  // text-shadow: 0 0 5px rgba(0, 0, 0, 0.9);
+
+  
+
+  @include mobile {
+    background-attachment: scroll; /* Убирает фиксированное положение фона для улучшения производительности на мобильных устройствах */
+  }
+
+    &.card0{      
+        background-image: url(/src/assets/images/beach1.jpg); /* Укажите путь к вашему изображению */
+    }
+    &.card1{
+        background-image: url(/src/assets/images/beach2.webp);
+        transition:background-image 0.3ms ease ; 
+    }
+    //  &.card1{
+    //   background: black; /* Исходный черный фон */
+    //   background-size: cover;
+    //   background-position: center;
+    //   animation: changeBg 0.2s ease forwards;
+    // }
+   
+    &.card2{
+        background-image: url(/src/assets/images/beach5.webp); /* Укажите путь к вашему изображению */
+    }
+    &.card3{
+        background-image: url(/src/assets/images/beach4.webp); /* Укажите путь к вашему изображению */
+    }
+    @keyframes changeBg {
+      0% {
+          background: black; /* Черный фон */
+      }
+      100% {
+          background: url('/src/assets/images/beach2.webp') no-repeat center center;
+          background-size: cover; /* Настройка размера картинки */
+      }
+  }
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    height: 100%;
+    
+    &-card{
+      background-color: aliceblue;
+      opacity: 0.8;
+      max-width: 60%;
+      padding: rem(20) rem(30);
+      border-radius: rem(10);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      row-gap: rem(30);
+      &:not(.is-active){
+        display: none;
+      }     
+      
+    }
+
+    &-text{
+        font-size: rem(22);
+    }
+  }
+}

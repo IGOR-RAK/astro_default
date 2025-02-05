@@ -1,0 +1,192 @@
+---
+---
+
+<div class="hero card0" data-js-hero>
+    <div class="hero__inner container">
+        <div  class="hero__inner-content" data-js-hero-content>
+            <div class="hero__inner-card is-active">
+                <p class="hero__inner-badge badge">OUR PHILOSOPHY</p>
+                <p class="hero__inner-title h1">
+                    We believe the beach is a place where four elements unite—earth in the  sand, water in the endless waves, air in the breeze, and warmth in the sun's embrace. 
+                </p>
+                <p class="hero__inner-text">
+                    Together, they give your additional energy, renewing your spirit.
+                    This is why we love the beach and are always ready to explore new destination.
+                </p>
+            </div>
+            <div class="hero__inner-card">
+                <p class="hero__inner-badge badge">OCEAN SERENITY</p>
+                <p class="hero__inner-title h1">
+                    The ocean whispers tales of serenity, where the rhythm of waves soothes the soul and every breeze carries a song of freedom.
+                </p>
+                <p class="hero__inner-text">
+                    It's a place where worries dissolve into the horizon, leaving only peace and boundless inspiration.
+                </p>
+            </div>
+            <div class="hero__inner-card">
+                <p class="hero__inner-badge badge">SUNLIT ESCAPE</p>
+                <p class="hero__inner-title h1">
+                    Beneath the golden sun, the beach becomes a haven of joy, where every step on warm sand awakens a sense of adventure.
+                </p>
+                <p class="hero__inner-text">
+                    Here, time slows down, and the vibrant colors of the sea and sky paint unforgettable memories.
+                </p>
+            </div>            
+            <div class="hero__inner-card">
+                <p class="hero__inner-badge badge">TIDES OF WONDER</p>
+                <p class="hero__inner-title h1">
+                    The tides carry stories from distant shores, reminding us that every wave holds a touch of mystery and magic.
+                </p>
+                <p class="hero__inner-text">
+                    At the beach, the world feels vast yet intimate, inviting us to dream, explore, and connect with nature.
+                </p>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<script>
+
+class Hero {
+  private heroDiv: HTMLElement | null;
+  private contentDiv: HTMLElement | null;
+  private currentIndex: number;
+  private readonly changeInterval: number = 23000; // Интервал смены в миллисекундах
+  private readonly totalCards: number;
+
+  constructor(heroSelector: string, contentSelector: string) {
+    this.heroDiv = document.querySelector(heroSelector);
+    this.contentDiv = document.querySelector(contentSelector);
+    this.currentIndex = 0;
+    this.totalCards = this.contentDiv?.children.length || 0;
+
+    this.init();
+  }
+
+  private init(): void {
+    if (this.heroDiv && this.contentDiv && this.totalCards > 0) {
+      this.updateHero(this.currentIndex); // Установить начальное состояние
+      setInterval(() => this.cycleHero(), this.changeInterval);
+    } else {
+      console.error('Элементы с указанными селекторами не найдены или отсутствуют дочерние элементы.');
+    }
+  }
+
+  /**
+   * Обновляет класс heroDiv на основе текущего индекса.
+   */
+  private updateHero(index: number): void {
+    const className = `card${index}`;
+    if (this.heroDiv) {
+      this.heroDiv.className = `hero ${className}`;
+    }
+  }
+
+  /**
+   * Меняет индекс на следующий и вызывает обновление heroDiv и активности карточек.
+   */
+  private cycleHero(): void {
+    this.currentIndex = (this.currentIndex + 1) % this.totalCards;
+    this.updateHero(this.currentIndex);
+    this.updateActiveCard();
+  }
+
+  /**
+   * Обновляет класс активности для карточек.
+   */
+  private updateActiveCard(): void {
+    if (!this.contentDiv) return;
+
+    Array.from(this.contentDiv.children).forEach((card, index) => {
+      card.classList.toggle('is-active', index === this.currentIndex);
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  new Hero('[data-js-hero]', '[data-js-hero-content]');
+});
+// class Hero {
+//   private heroDiv: HTMLElement | null;
+//   private contentDiv: HTMLElement | null;
+//   private currentIndex: number;
+//   private lastUpdateTime: number;
+//   private readonly changeInterval: number = 3000; // Интервал смены в миллисекундах
+//   private readonly totalCards: number;
+
+//   constructor(heroSelector: string, contentSelector: string) {
+//     this.heroDiv = document.querySelector(heroSelector);
+//     this.contentDiv = document.querySelector(contentSelector);
+//     this.currentIndex = 0;
+//     this.lastUpdateTime = 0;
+//     this.totalCards = this.contentDiv?.children.length || 0;
+
+//     this.init();
+//   }
+
+//   private init(): void {
+//     if (this.heroDiv && this.contentDiv && this.totalCards > 0) {
+//       this.updateHero(this.currentIndex); // Установить начальное состояние
+//       this.startAnimation();
+//     } else {
+//       console.error('Элементы с указанными селекторами не найдены или отсутствуют дочерние элементы.');
+//     }
+//   }
+
+//   /**
+//    * Запуск анимации с использованием requestAnimationFrame.
+//    */
+//   private startAnimation(): void {
+//     const animate = (timestamp: number) => {
+//       if (!this.lastUpdateTime) this.lastUpdateTime = timestamp;
+
+//       const elapsed = timestamp - this.lastUpdateTime;
+
+//       if (elapsed >= this.changeInterval) {
+//         this.lastUpdateTime = timestamp;
+//         this.cycleHero();
+//       }
+
+//       requestAnimationFrame(animate);
+//     };
+
+//     requestAnimationFrame(animate);
+//   }
+
+//   /**
+//    * Обновляет класс heroDiv на основе текущего индекса.
+//    */
+//   private updateHero(index: number): void {
+//     const className = `card${index}`;
+//     if (this.heroDiv) {
+//       this.heroDiv.className = `hero ${className}`;
+//     }
+//   }
+
+//   /**
+//    * Меняет индекс на следующий и вызывает обновление heroDiv и активности карточек.
+//    */
+//   private cycleHero(): void {
+//     this.currentIndex = (this.currentIndex + 1) % this.totalCards;
+//     this.updateHero(this.currentIndex);
+//     this.updateActiveCard();
+//   }
+
+//   /**
+//    * Обновляет класс активности для карточек.
+//    */
+//   private updateActiveCard(): void {
+//     if (!this.contentDiv) return;
+
+//     Array.from(this.contentDiv.children).forEach((card, index) => {
+//       card.classList.toggle('is-active', index === this.currentIndex);
+//     });
+//   }
+// }
+
+// document.addEventListener('DOMContentLoaded', () => {
+//   new Hero('[data-js-hero]', '[data-js-hero-content]');
+// });
+
+</script> 

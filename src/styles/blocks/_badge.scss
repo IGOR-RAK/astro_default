@@ -1,0 +1,10 @@
+@use '../helpers' as *;
+
+.badge{
+    background-color: var(--color-accent);
+    opacity: 0.9;
+    padding: rem(2) rem(4);
+    flex-grow: 0;
+    font-size: rem(24);
+    border-radius: rem(2);    
+}

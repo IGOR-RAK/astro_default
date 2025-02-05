@@ -1,6 +1,123 @@
 ---
+import Hero from "./Hero.astro"
+import Imager from "../common/Imager.astro"
+import Test from "../Test.astro"
+
+const imageData = [
+  {
+    id: 1,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1737716395/beaches/beach1_qtagou.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1737716395/beaches/beach1_qtagou.jpg",
+    title: "Waves of Serenity",
+    description: "Beaches offer a serene escape with their golden sands, soothing waves, and breathtaking sunsets, perfect for relaxation and rejuvenation."
+  },
+  {
+    id: 2,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1737716395/beaches/beach4_tlh9o6.webp",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1737716395/beaches/beach4_tlh9o6.webp",
+    title: "Ocean Breeze and Jazz",
+    description: "Imagine the sound of jazz blending with the rhythm of ocean waves, creating a magical ambiance on a tranquil beach evening."
+  },
+  {
+    id: 3,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1737716395/beaches/beach2_n7ysts.webp",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1737716395/beaches/beach2_n7ysts.webp",
+    title: "Dreamy Seashore",
+    description: "A perfect beach is where the soft sand meets crystal-clear waters, offering a paradise for sunbathers and swimmers alike."
+  },
+  {
+    id: 4,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1737716395/beaches/beach3_b3lppa.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1737716395/beaches/beach3_b3lppa.jpg",
+    title: "Sun-Kissed Sands",
+    description: "The combination of warm sun rays and soft sand underfoot creates a blissful experience, making beaches a favorite destination."
+  },
+  {
+    id: 5,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1737716395/beaches/beach5_dhrztp.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1737716395/beaches/beach5_dhrztp.jpg",
+    title: "Coastal Bliss",
+    description: "Beaches are the ultimate place to find joy and rest, with their calming atmosphere and endless opportunities for fun and relaxation."
+  },
+  {
+    id: 6,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1738093853/beaches/beach7_ei2hba.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1738093853/beaches/beach7_ei2hba.jpg",
+    title: "Azure Horizon",
+    description: "The beauty of beaches lies in their ability to captivate with stunning views, gentle breezes, and the soothing sound of waves."
+  },
+  {
+    id: 7,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1738093853/beaches/beach12_x9rarj.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1738093853/beaches/beach12_x9rarj.jpg",
+    title: "Harmonic Waves",
+    description: "A beachside jazz performance adds a touch of elegance and charm, making the seaside experience even more memorable and enchanting."
+  },
+  {
+    id: 8,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1738093853/beaches/beach6_w7xhte.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1738093853/beaches/beach6_w7xhte.jpg",
+    title: "Golden Shoreline",
+    description: "The ideal beach is a harmonious blend of natural beauty, tranquility, and the perfect spot to unwind and connect with nature."
+  },
+  {
+    id: 9,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1738093853/beaches/beach15_llyfsd.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1738093853/beaches/beach15_llyfsd.jpg",
+    title: "Sunlit Tranquility",
+    description: "The warmth of the sun and the softness of the sand create a perfect setting for a day of relaxation and enjoyment."
+  },
+  {
+    id: 10,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1738093854/beaches/beach13_lh7oxd.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1738093854/beaches/beach13_lh7oxd.jpg",
+    title: "Waves and Whispers",
+    description: "Beaches provide a sanctuary where one can find joy, peace, and a break from the hustle and bustle of everyday life."
+  },
+  {
+    id: 11,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1738093854/beaches/beach14_hetqid.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1738093854/beaches/beach14_hetqid.jpg",
+    title: "Seaside Serenity",
+    description: "The allure of beaches lies in their stunning landscapes, refreshing waters, and the sense of freedom they inspire in every visitor."
+  },
+  {
+    id: 12,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1738093854/beaches/beach9_iyayym.webp",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1738093854/beaches/beach9_iyayym.webp",
+    title: "Moonlight on the Waves",
+    description: "Jazz music on the beach creates a unique and unforgettable experience, blending melodies with the natural symphony of the ocean."
+  },
+  {
+    id: 13,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1738093854/beaches/beach13_lh7oxd.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1738093854/beaches/beach13_lh7oxd.jpg",
+    title: "Tropical Paradise",
+    description: "A perfect beach is a haven of peace, offering pristine sands, clear waters, and a tranquil environment to escape and recharge."
+  },
+  {
+    id: 14,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1738093854/beaches/beach8_rdsmaj.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1738093854/beaches/beach8_rdsmaj.jpg",
+    title: "Golden Dunes and Blue Skies",
+    description: "The combination of golden sand and radiant sun creates a picturesque scene, making beaches a favorite destination for travelers."
+  },
+  {
+    id: 15,
+    original: "https://res.cloudinary.com/du9w3xgvx/image/upload/v1738093854/beaches/beach10_pibr1f.jpg",
+    thumbnail: "https://res.cloudinary.com/du9w3xgvx/image/upload/c_thumb,w_200,g_face/v1738093854/beaches/beach10_pibr1f.jpg",
+    title: "Serene Coastal Escape",
+    description: "Beaches are the ultimate destination to experience joy and rest, offering a peaceful retreat from the stresses of daily life."
+  },
+];
+
 ---
-<div>
+<!-- <Hero/> -->
+<Imager data={imageData}/>
+
+
+<!-- <Test/> -->
+<!-- <div>
     freestar 
 
 freestar
@@ -541,6 +658,6 @@ Donec ac ipsum ornare lorem condimentum interdum.
 Nulla nec nibh egestas, iaculis lacus et, maximus turpis.
 Praesent a enim tincidunt, tempus libero vel, facilisis quam.
 Suspendisse mattis arcu non odio tempus euismod.
-</div>
+</div> -->
 
 

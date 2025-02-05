@@ -1,0 +1,645 @@
+---
+import PauseButton from "./Slider/PauseButton.astro";
+import WideButton from "./Slider/WideButton.astro";
+interface ImageData {
+  id: number;
+  original: string;
+  thumbnail: string;
+  title: string;
+  description: string;
+}
+
+const { data } = Astro.props;
+---
+
+<!-- 
+5. Всплытие для стрелок кнопок чтобы не дублировать код
+6. поделить на компоненты
+ -->
+<div class="slider" data-slider>
+  <div class="image-slider container">
+    <div class="image-slider__wrapper" data-slider-wrapper>      
+      <div class="image-slider__slides" data-slider-slides>
+        {
+          data.map((item: ImageData) => (
+            <img
+              class="image-slider__slide"
+              src={item.original}
+              alt={item.title}
+              width="735"
+              height="460"
+              loading="lazy"
+              data-description={item.description}              
+              data-slider-slide
+            />
+          ))
+        }
+      </div>
+      <div class="image-slider__top">
+        <PauseButton />
+        <WideButton />
+      </div>
+      <div class="image-slider__controls">
+        <button
+          class="image-slider__arrow image-slider__arrow--left slider-button"
+          aria-label="Previous slide"
+          data-slider-arrow-left>&#8592;</button
+        >
+        <button
+          class="image-slider__arrow image-slider__arrow--right slider-button"
+          aria-label="Next slide"
+          data-slider-arrow-right>&#8594;</button
+        >
+      </div>
+    </div>
+    <div class="image-slider__navigation">
+      <div class="image-slider__thumbnails">
+        <div
+          class="image-slider__thumbnails-inner"
+          data-slider-thumbnails-container
+        >
+          {
+            data.map((item: any) => (
+              <div class="image-slider__thumbnail-container">
+                <button class="image-slider__thumbnail" data-slider-thumbnail>
+                  <img
+                    src={item.thumbnail}
+                    alt={item.title}
+                    width="80"
+                    height="50"
+                    loading="lazy"
+                   
+                  />
+                </button>
+                <div class="image-slider__progress-container progress-container">
+                  <div
+                    class="image-slider__progress-line progress-line"
+                    data-slider-progress
+                  />
+                </div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+      <div class="image-slider__current-image-title" data-slider-title></div> 
+      <div class="image-slider__counter">
+        <span data-slider-curent-image-progress>-</span>/<span
+          data-slider-total-images-progress>-</span
+        >
+      </div>
+    </div>   
+  </div>  
+  <div id="modal" class="modal" data-slider-modal>
+    <span
+      id="closeModalBtn"
+      class="modal__close"
+      data-slide-close-modal-button>&times;</span
+    >
+    <div class="modal-wrapper" data-slider-modal-wrapper>     
+        <div
+          class="modal-slides"
+          data-slider-modal-container
+        >
+          {
+            data.map((item: ImageData) => (
+              <img
+                class="modal-slide"
+                src={item.original}
+                alt={item.title}
+                width="1234"
+                height="772"
+                loading="lazy"
+                data-slider-modal-slide
+              />
+            ))
+          }           
+        </div>
+        <div class="modal__arrows-container">
+          <button
+            class="image-slider__arrow image-slider__arrow--left slider-button"
+            data-slider-modal-arrow-left>&#8592;</button
+          >
+          <button
+            class="image-slider__arrow image-slider__arrow--right slider-button"
+            data-slider-modal-arrow-right>&#8594;</button
+          >
+        </div>   
+    </div>
+  </div>
+</div>
+
+<script>
+  class Slider {
+    private body: HTMLElement;
+    private slidesContainer: HTMLElement;
+    private slidesWrapper: HTMLElement;
+   
+    // Modal
+    private openModalButton: HTMLElement;
+    private closeModalButton: HTMLElement;
+    private modal: HTMLElement;
+    private modalSlidesWrapper: HTMLElement; 
+    private modalSlidesContainer: HTMLElement;  
+    private modalSlides: HTMLElement[];   
+    private modalRightArrow: HTMLButtonElement;
+    private modalLeftArrow: HTMLButtonElement;
+    private progressElements: HTMLElement[];
+    private isAnimationKeepGoing = false;
+    private slideModalWidth: number = 1234;
+    private isModal = false;
+    // Slides
+    private slides: HTMLElement[];
+    private slideWidth: number = 735;
+    private resizeObserver: ResizeObserver;
+    private resizeModalObserver: ResizeObserver;
+    private currentSlideIndex: number;
+    private rightArrow: HTMLButtonElement;
+    private leftArrow: HTMLButtonElement;
+    private thumbnailsCollection: HTMLElement[];
+    private thumbnailsContainer: HTMLElement;
+    private currentProgress: HTMLElement;
+    private totalProgress: HTMLElement;
+    private currentImageTitle: HTMLElement;    
+    private touchStartX: number = 0;
+    private touchEndX: number = 0;
+    private autorunIsRun = false;
+    private intervalId: number | undefined;
+
+    constructor(private sliderSelector: string) {
+      this.body = document.body;
+
+      this.resizeObserver = new ResizeObserver(() => {
+        const width = window.innerWidth;
+        if (width < 768) {
+          this.setSlideWidtForMobile(width);
+        }
+      });
+
+      this.resizeModalObserver = new ResizeObserver(() => {
+        const width = window.innerWidth;
+        if (this.isModal && width < 1440.98) {
+          this.setModalSlideWidtForMobile(width);
+        }
+      });
+
+      const sliderElement = document.querySelector<HTMLElement>(sliderSelector);
+
+      if (!sliderElement) {
+        throw new Error("Slider element not found");
+      }
+
+      // Slide Index
+      this.currentSlideIndex = 0;
+      // Autorun      
+
+      this.progressElements = Array.from(
+        sliderElement.querySelectorAll<HTMLElement>("[data-slider-progress]")
+      );
+      this.slidesWrapper = sliderElement.querySelector(
+        "[data-slider-wrapper]"
+      )!;
+
+      // Modal
+      this.openModalButton = sliderElement.querySelector(
+        "[data-slider-wide-button]"
+      )!;
+
+      this.closeModalButton = sliderElement.querySelector(
+        "[data-slide-close-modal-button]"
+      )!;
+      
+      this.modalSlidesWrapper = sliderElement.querySelector(
+        "[data-slider-modal-wrapper]"
+      )!;
+
+      this.modalSlidesContainer = sliderElement.querySelector(
+        "[data-slider-modal-container]"
+      )!;
+
+      this.modalSlides = Array.from(
+        sliderElement.querySelectorAll<HTMLElement>("[data-slider-modal-slide]")
+      );
+
+
+      this.closeModalButton = sliderElement.querySelector(
+        "[data-slide-close-modal-button]"
+      )!;
+
+      this.modal = sliderElement.querySelector("[data-slider-modal]")!;
+
+      this.modalLeftArrow = sliderElement.querySelector(
+        "[data-slider-modal-arrow-left]"
+      )!;
+      this.modalRightArrow = sliderElement.querySelector(
+        "[data-slider-modal-arrow-right]"
+      )!;
+
+      // Slider
+
+      this.slidesContainer = sliderElement.querySelector(
+        "[data-slider-slides]"
+      )!;
+      this.slides = Array.from(
+        sliderElement.querySelectorAll<HTMLElement>("[data-slider-slide]")
+      );
+
+      this.leftArrow = sliderElement.querySelector("[data-slider-arrow-left]")!;
+      this.rightArrow = sliderElement.querySelector(
+        "[data-slider-arrow-right]"
+      )!;
+      this.thumbnailsCollection = Array.from(
+        sliderElement.querySelectorAll<HTMLElement>("[data-slider-thumbnail]")
+      );
+      this.thumbnailsContainer = sliderElement.querySelector(
+        "[data-slider-thumbnails-container]"
+      )!;
+
+      // Discribe section
+      this.currentProgress = document.querySelector(
+        "[data-slider-curent-image-progress]"
+      )!;
+      this.totalProgress = document.querySelector(
+        "[data-slider-total-images-progress]"
+      )!;
+      this.currentImageTitle = document.querySelector("[data-slider-title]")!;
+
+      // Lets go
+      this.init();
+    }
+
+    private init() {
+      this.setSlidesContainerWidth();
+      this.setThumbnailContainerWidth();
+      this.setModalSlidesContainerWidth();
+      this.updateSlidePosition(true);
+      this.addEventListeners();
+      this.addTouchEvents();
+      this.setTotalIndekator();
+      this.setCurrentIndekator();
+      this.setCurrentTitle();
+      this.resizeObserver.observe(this.body);
+      this.resizeModalObserver.observe(this.body);
+      document.addEventListener("buttonToggled", (e: Event) => {
+        const customEvent = e as CustomEvent<{ active: boolean }>;
+        console.log("Событие перехвачено!", customEvent.detail);
+        this.setAutorun();
+      });
+      this.progressElements.forEach((line, index) => {
+        line.classList.toggle(
+          "is-current",
+          index === this.currentSlideIndex
+        );
+      });
+    }
+
+    private setSlidesContainerWidth() {
+      const width = this.slides.length * this.slideWidth;
+      this.slidesContainer.style.width = width + "px";
+    }
+
+    private setModalSlidesContainerWidth() {
+      const width = this.slides.length * this.slideModalWidth;
+      this.modalSlidesContainer.style.width = width + "px";
+    }
+
+    private setSlideWidtForMobile(bodyWidth: number) {     
+      const width = bodyWidth - 32;     
+      const slidesWidth = (width * this.slides.length).toString() + "px";
+      this.slidesWrapper.style.width = width.toString() + "px";
+      this.slidesContainer.style.width = slidesWidth;
+      this.slides.forEach((slide: HTMLElement) => {
+        slide.style.width = width.toString() + "px";
+      });  
+      this.slideWidth =width;  
+      this.goToSlide(this.currentSlideIndex);
+      
+    }
+
+    private setModalSlideWidtForMobile(bodyWidth: number) { 
+      
+      const width = bodyWidth;     
+      const slidesWidth = (width * this.slides.length).toString() + "px";
+      this.modalSlidesWrapper.style.width = width.toString() + "px";
+      this.modalSlidesContainer.style.width = slidesWidth.toString() + "px";
+      this.modalSlides.forEach((slide: HTMLElement) => {
+        slide.style.width = width.toString() + "px";
+      });
+      this.slideModalWidth = width;
+      this.goToSlide(this.currentSlideIndex);
+    }
+
+    private setThumbnailContainerWidth() {
+      const thumbnailsWidth =
+        this.thumbnailsCollection.length * 80 +
+        (this.thumbnailsCollection.length - 2) * 16;
+      this.thumbnailsContainer.style.width = thumbnailsWidth + "px";
+    }
+
+    private addEventListeners() {
+      this.leftArrow.addEventListener("click", () => this.leftArrowHandler());
+      this.rightArrow.addEventListener("click", () => this.rightArrowHandler());
+      this.openModalButton.addEventListener("click", () => this.openModal());
+      this.closeModalButton.addEventListener("click", () => this.closeModal());
+      document.addEventListener("keydown", (event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          this.closeModal();
+        }
+      });
+      this.modalRightArrow.addEventListener("click", () => this.nextSlide());
+      this.modalLeftArrow.addEventListener("click", () => this.prevSlide());
+
+      this.thumbnailsCollection.forEach((thumbnail, index) => {
+        thumbnail.addEventListener("click", () => this.thumbnailHandler(index));
+      });
+    }
+
+    // Modal methods
+
+    private openModal() {
+      if (this.isAnimationKeepGoing) {
+        this.setAutorun();
+      }
+      this.isModal = true;
+      this.modal.classList.add("open");
+      this.updateModalSlidePosition();
+    }
+
+    private closeModal() {
+      this.modal.classList.remove("open");
+      this.isModal = false;
+    }
+
+    private updateModalSlidePosition() {
+      const offset = -(this.currentSlideIndex * this.slideModalWidth);     
+      this.modalSlidesContainer.style.transform = `translateX(${offset}px)`;
+
+      this.thumbnailsCollection.forEach((thumbnail, index) => {
+        thumbnail.classList.toggle(
+          "is-active",
+          index === this.currentSlideIndex
+        );
+      });
+
+      if(!this.autorunIsRun){
+        this.progressElements.forEach((line, index) => {
+        line.classList.toggle(
+          "is-current",
+          index === this.currentSlideIndex
+        );
+      });
+      }      
+
+      if (this.currentSlideIndex % 3 === 0) {
+        this.updateThumbnailsPosition(this.currentSlideIndex);
+      }
+
+      this.setCurrentIndekator();
+      this.setCurrentTitle();
+    }
+
+    // Slide methods
+    private updateSlidePosition(forward:boolean) {
+      const offset = -(this.currentSlideIndex * this.slideWidth);
+      this.slidesContainer.style.transform = `translateX(${offset}px)`;
+
+      this.thumbnailsCollection.forEach((thumbnail, index) => {
+        thumbnail.classList.toggle(
+          "is-active",
+          index === this.currentSlideIndex
+        );
+      });
+      if (this.currentSlideIndex % 5 === 0){
+          this.updateThumbnailsPosition(this.currentSlideIndex);
+        }
+      if(forward){
+        if (this.currentSlideIndex % 3 === 0){
+          this.updateThumbnailsPosition(this.currentSlideIndex);
+        }
+      } else {
+        this.updateThumbnailsPosition(this.currentSlideIndex);
+      }
+     
+      this.setCurrentIndekator();
+      this.setCurrentTitle();
+  
+      if(!this.autorunIsRun){
+        this.progressElements.forEach((line, index) => {
+        line.classList.toggle(
+          "is-current",
+          index === this.currentSlideIndex
+        );
+      });
+      }
+    }
+
+    private updateThumbnailsPosition(index:number) {
+      const offset = -(index * 95);      
+      this.thumbnailsContainer.style.transform = `translateX(${offset}px)`;
+    }
+
+    private leftArrowHandler() {
+      if (this.isAnimationKeepGoing) {
+        this.setAutorun();
+      }
+      this.prevSlide();
+    }
+
+    private prevSlide() {
+      if (this.currentSlideIndex === 0) {
+        this.currentSlideIndex = this.slides.length - 1;
+        this.updateSlidePosition(false);
+        this.updateModalSlidePosition();
+        return;
+      }
+      if (this.currentSlideIndex > 0) {
+        this.currentSlideIndex--;
+        this.updateSlidePosition(false);
+        this.updateModalSlidePosition();
+      }
+    }
+
+    private rightArrowHandler() {
+      if (this.isAnimationKeepGoing) {
+        this.setAutorun();
+      }
+      this.nextSlide();
+    }
+
+    private nextSlide() {
+      if (this.currentSlideIndex === this.slides.length - 1) {
+        this.currentSlideIndex = 0;
+        this.updateSlidePosition(true);
+        this.updateModalSlidePosition();
+        return;
+      }
+      if (this.currentSlideIndex < this.slides.length - 1) {
+        this.currentSlideIndex++;
+        this.updateSlidePosition(true);
+        this.updateModalSlidePosition();
+      }
+    }
+
+    private thumbnailHandler(index: number) {
+      if (this.isAnimationKeepGoing) {
+        this.setAutorun();
+      }
+      this.goToSlide(index);
+    }
+
+    private goToSlide(index: number) {
+      if (index >= 0 && index < this.slides.length) {
+        this.currentSlideIndex = index;
+        this.updateSlidePosition(true);
+        this.updateModalSlidePosition();
+      }
+    }
+
+    // Describe section
+
+    private setTotalIndekator() {
+      this.totalProgress.textContent = this.slides.length.toString();
+    }
+
+    private setCurrentIndekator() {
+      const currentImageNumber = this.currentSlideIndex + 1;
+      this.currentProgress.textContent = currentImageNumber.toString();
+    }
+
+    private setCurrentTitle() {
+      const currentSlide = this.slides[this.currentSlideIndex];
+      if (currentSlide) {
+        this.currentImageTitle.textContent = "";
+        const title = currentSlide.getAttribute("alt") || "No title";
+        this.currentImageTitle.classList.remove("is-visible");
+        setTimeout(() => {
+          this.currentImageTitle.textContent = title;
+          this.currentImageTitle.classList.add("is-visible");
+        }, 500);
+      } else {
+        console.error(
+          "Slide not found for current index:",
+          this.currentSlideIndex
+        );
+      }
+    }
+    
+
+    // TouchEvents
+
+    private addTouchEvents() {
+      this.slidesContainer.addEventListener("touchstart", (event) =>
+        this.handleTouchStart(event)
+      );
+      this.slidesContainer.addEventListener("touchend", (event) =>
+        this.handleTouchEnd(event)
+      );
+    }
+
+    private handleTouchStart(event: TouchEvent) {
+      this.touchStartX = event.touches[0].clientX;
+    }
+
+    private handleTouchEnd(event: TouchEvent) {
+      this.touchEndX = event.changedTouches[0].clientX;
+      this.handleSwipe();
+    }
+
+    private handleSwipe() {
+      const swipeThreshold = 50; // Минимальное расстояние для срабатывания свайпа
+
+      // Если свайп вправо
+      if (this.touchStartX - this.touchEndX > swipeThreshold) {
+        this.nextSlide();
+      }
+      // Если свайп влево
+      if (this.touchEndX - this.touchStartX > swipeThreshold) {
+        this.prevSlide();
+      }
+    }
+
+    // TouchEvents
+
+    private setAutorun() {
+
+      this.autorunIsRun = !this.autorunIsRun;
+
+      if (this.autorunIsRun) {
+        this.progressElements.forEach((line, index) => {
+        line.classList.remove(
+          "is-current"
+        );
+      });
+        this.isAnimationKeepGoing = !this.isAnimationKeepGoing;       
+        this.progressElements[this.currentSlideIndex].classList.add(
+          "is-active"
+        );
+        this.intervalId = setInterval(() => {
+          this.progressElements[this.currentSlideIndex].classList.remove(
+            "is-active"
+          );
+          void this.progressElements[this.currentSlideIndex].offsetWidth;
+          this.nextSlide();
+          this.progressElements[this.currentSlideIndex].classList.add(
+            "is-active"
+          );
+        }, 3000);
+      } else {
+        this.isAnimationKeepGoing = !this.isAnimationKeepGoing;
+        if (this.intervalId !== undefined) {
+          clearInterval(this.intervalId);
+          this.intervalId = undefined;
+        }
+        this.progressElements[this.currentSlideIndex].classList.remove(
+          "is-active"
+        );
+        void this.progressElements[this.currentSlideIndex].offsetWidth;
+        this.progressElements.forEach((line, index) => {
+        line.classList.toggle(
+          "is-current",
+          index === this.currentSlideIndex
+        );
+      });
+        
+      }
+    }
+  }
+
+  window.addEventListener("load", () => {
+    new Slider("[data-slider]");
+  });
+  
+  document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll<HTMLImageElement>(".image-slider__slide").forEach((img) => {
+    img.addEventListener("mouseenter", (event: MouseEvent) => {
+      const target = event.target as HTMLImageElement;
+      const description = target.dataset.description;
+
+      if (!description) return; // Защита от пустых данных
+
+      const descriptionBox = document.createElement("div");
+      descriptionBox.className = "image-description";
+      descriptionBox.innerText = description;
+
+      // Стили
+      Object.assign(descriptionBox.style, {
+        position: "absolute",
+        background: "rgba(0,0,0,0.7)",
+        color: "white",
+        padding: "5px 10px",
+        borderRadius: "5px",
+        top: `${event.clientY + 10}px`,
+        left: `${event.clientX + 10}px`,
+      });
+
+      document.body.appendChild(descriptionBox);
+
+      target.addEventListener("mouseleave", () => {
+        descriptionBox.remove();
+      });
+    });
+  });
+});
+
+
+</script>

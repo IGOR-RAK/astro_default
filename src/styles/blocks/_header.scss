@@ -4,21 +4,23 @@
   position: sticky;
   z-index: 100;
   top: 0;
-  animation-name: scrolling-header;
-  animation-fill-mode: both;
-  animation-timeline: scroll();
-  animation-range: rem(100) rem(200);
+  font-family: 'Inter';
+  font-weight: 900;
+  // animation-name: scrolling-header;
+  // animation-fill-mode: both;
+  // animation-timeline: scroll();
+  // animation-range: rem(100) rem(200);
 
-  @keyframes scrolling-header {
-    to {
-      box-shadow: 0 0 1rem 0 var(--color-dark-40);
-    }
-  }
+  // @keyframes scrolling-header {
+  //   to {
+  //     box-shadow: 0 0 1rem 0 var(--color-dark-40);
+  //   }
+  // }
 
   &__promo {
     padding-block: rem(20);
     text-align: center;
-    background-color: var(--color-dark);
+    background-color: var(--color-light);
     border-bottom: var(--border);
 
     @include mobile {
@@ -40,7 +42,7 @@
 
   &__body {
     padding-block: rem(24);
-    background-color: var(--color-dark-10);
+    background-color: var(--color-light);
 
     @include mobile {
       padding-block: rem(20);
@@ -67,7 +69,7 @@
       justify-content: center;
       row-gap: 3rem;
       padding: 1rem;
-      background-color: var(--color-dark-10);
+      background-color: var(--color-light);
       transition-duration: var(--transition-duration);
 
       &:not(.is-active) {
@@ -107,10 +109,10 @@
       }
 
       &.is-active {
-        color: var(--color-light);
+        color: var(--color-dark);
         font-weight: 500;
-        background-color: var(--color-dark);
-        border: var(--border);
+        background-color: var(--color-accent);
+        // border: var(--border);
         border-radius: rem(10);
         pointer-events: none;
       }

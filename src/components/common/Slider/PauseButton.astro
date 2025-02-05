@@ -1,0 +1,76 @@
+<button aria-label="Pause/Play" class="pause-button slider-button" id="customButton">
+    <div class="lines">
+      <div class="line"></div>
+      <div class="move">
+        <div class="line"></div>
+        <div class="line"></div>
+      </div>
+    </div>
+  </button>
+ 
+  
+  <style>
+    .pause-button { 
+      width: 34px;
+      height: 34px;      
+    }
+    
+    .lines {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.1s;
+    }
+    .line {
+      width: 2.5px;
+      height: 16px;
+      background: var(--color-light);
+      border-radius: 1mm;
+      margin: 0 3.5px;
+    }
+    .move .line {
+      height: 8px;
+      transition: 0.25s ease-in-out;   
+      
+    }
+    .move .line:nth-child(1) {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      transform-origin: bottom;
+      
+    }
+    .move .line:nth-child(2) {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      transform-origin: top;
+      
+    }
+    .pause-button.is-active .move .line:nth-child(1) {
+      transform: rotate(-60deg) translateY(1px);
+      border-radius: 1mm;
+      height: 16px;
+    }
+    .pause-button.is-active .move .line:nth-child(2) {
+      transform: rotate(60deg) translateY(-1px);
+      border-radius: 1mm;
+      height: 16px;
+    }
+    .pause-button.is-active .move {
+      transform: translateX(3px);
+    }
+    .move {
+      transition: 0.2s ease-in;
+    }
+    .pause-button:active .lines {
+      transform: scale(0.95);
+    }
+  </style>
+  <script>
+      document.getElementById("customButton")!.addEventListener("click", function() {
+      this.classList.toggle("is-active");    
+      const event = new CustomEvent("buttonToggled", { detail: { active: this.classList.contains("is-active") } });
+      document.dispatchEvent(event);
+    });
+  </script>

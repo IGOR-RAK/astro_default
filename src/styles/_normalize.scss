@@ -97,8 +97,14 @@
  video {
    display: block;
    max-width: 100%;
-   height: auto;
+  //  height: auto;
  }
+
+ button, input {
+  // all: unset; 
+  // box-sizing: border-box;
+  // font-family: inherit;
+}
  
  /**
    Наследуем свойства шрифт для полей ввода
